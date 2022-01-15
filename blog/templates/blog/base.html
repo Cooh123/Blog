@@ -39,8 +39,8 @@
         </div>
         {% else %}
         <ul class="nav">
-        <li class="nav-item"><a href="{% url 'auth' %}" class="nav-link link-dark px-2">Войти</a></li>
-        <li class="nav-item"><a href="{% url 'reg' %}" class="nav-link link-dark px-2">Регистрация</a></li>
+        <li class="nav-item"><a href="{% url 'profile_app:auth' %}" class="nav-link link-dark px-2">Войти</a></li>
+        <li class="nav-item"><a href="{% url 'profile_app:reg' %}" class="nav-link link-dark px-2">Регистрация</a></li>
       </ul>
         {% endif %}
       </div>

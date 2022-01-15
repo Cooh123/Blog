@@ -1,0 +1,13 @@
+#lk {
+    background-color: Transparent;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+    color: #0d6efd;
+    border-radius: 50%;
+}
+
+#ff {
+    color: #0d6efd;
+}

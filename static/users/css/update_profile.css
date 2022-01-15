@@ -1,0 +1,24 @@
+#hint_id_username {
+    display: none;
+  }
+
+
+.asteriskField{
+    display: none;
+  }
+#id_username{
+    text-align:center;  
+}
+
+#id_bio {
+  height: 100px;
+}
+
+#id_img{
+  .box-sizing: padding-box;
+}
+input[type="file"]{
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}

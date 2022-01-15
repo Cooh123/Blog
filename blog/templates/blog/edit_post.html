@@ -1,0 +1,15 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}
+Обновление статьи
+{% endblock %}
+
+{% block content %}
+<h1>Обновление статьи</h1>
+<form method="post" class="form-register auth">
+  {% csrf_token %}
+  {{ form.as_p }}
+  {{form.media}}
+  <button class="btn btn-outline-warning" type="submit">Обновить</button>
+</form>
+{% endblock %}

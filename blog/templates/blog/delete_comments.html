@@ -1,0 +1,12 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}
+  Удаление коммента
+{% endblock %}
+
+{% block content %}
+<h1>Вы точно хотите удалить комментарий?</h1>
+<form method="post" class="form-register auth">
+  {% csrf_token %}
+  <button class="btn btn-outline-danger" type="submit">Да, удалить</button>
+{% endblock %}

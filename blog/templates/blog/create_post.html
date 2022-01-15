@@ -1,0 +1,21 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}
+Добавление статьи
+{% endblock %}
+
+{% block content %}
+<h1>Добавление статьи</h1>
+<hr>
+{% if user.is_authenticated %}
+<form method="post" class="form-register auth">
+  {% csrf_token %}
+  {{ form.as_p }}
+  {{ form.media }}
+  <button class="btn btn-outline-primary" type="submit">Добавить статью</button>
+</form>
+{%else%}
+    Для создания статьи требуется авторизация. <a href="{% url 'auth' %}"> Войти в личный кабинет</a> | <a href="{% url 'reg' %}"> Регистрация</a>
+
+{%endif%}
+{% endblock %}

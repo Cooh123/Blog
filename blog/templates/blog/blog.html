@@ -1,0 +1,66 @@
+{% extends 'blog/base.html' %}
+{%load static%}
+{% block title %}
+  Статьи
+{% endblock %}
+
+{% block link %}
+<link rel="stylesheet" href="{% static 'blog/blog.css'%}">
+{% endblock %}
+
+{% block content %}
+<main class="container">
+  <div class="row g-5">
+    <div class="col-md-10">
+      <div class="row mb-2">
+        {% for post in news%}
+        <div class="col-md-6">
+          <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+            <div class="col p-4 d-flex flex-column position-static">
+              <strong class="d-inline-block mb-2 ">{{ post.topic.title }}</strong>
+              <h3 class="mb-0 text-gray-dark">{{post.title}}</h3>
+              <div class="mb-1 text-muted">{{post.date|date:"d E Y в H:i"}}</div>
+              
+              <a href="{% url 'detail_post' post.id %}" class="stretched-link">Читать далее</a>
+            </div>
+            <div class="col-auto d-none d-lg-block">
+              <img src="{{ post.topic.img.url }}" class="bd-placeholder-img" width="200" height="250">
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+  </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="position-sticky" style="top: 2rem;">
+        <span>Сортировать по:</span>
+        <div class="list-group mx-0">
+          <label class="list-group-item d-flex gap-2">
+            <input class="form-check-input flex-shrink-0" type="checkbox" value="" checked="">
+            <span>
+              First checkbox
+            </span>
+          </label>
+          <label class="list-group-item d-flex gap-2">
+            <input class="form-check-input flex-shrink-0" type="checkbox" value="">
+            <span>
+              Second checkbox
+            </span>
+          </label>
+          <label class="list-group-item d-flex gap-2">
+            <input class="form-check-input flex-shrink-0" type="checkbox" value="">
+            <span>
+              Third checkbox
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+
+
+{% endblock %}

@@ -1,0 +1,22 @@
+#lk {
+    background-color: Transparent;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+    color: #0d6efd;
+    border-radius: 50%;
+}
+
+#text-comment, #text-post {
+    word-wrap: break-word;
+    width: 100%;
+}
+
+.django-ckeditor-widget{
+    width: 100%;
+  }
+
+.editdelete{
+    cursor: pointer;
+}

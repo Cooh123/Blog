@@ -1,0 +1,5 @@
+
+#text-comment, #text-post {
+    word-wrap: break-word;
+    max-lines: 10;
+}

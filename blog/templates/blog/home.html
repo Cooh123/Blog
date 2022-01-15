@@ -1,0 +1,15 @@
+{% extends 'blog/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Домашняя страница
+{% endblock %}
+
+{% block content %}
+<div class='container'><p> Привет, {{user}}!</p>
+
+{% endblock %}
+
+{%block js%}
+{%endblock%}

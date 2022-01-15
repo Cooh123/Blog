@@ -1,0 +1,343 @@
+{% extends 'blog/base.html' %}
+{% load crispy_forms_tags %}
+{%load static%}
+
+
+{% block link %}
+<link rel="stylesheet" href="{% static 'blog/post_detail.css'%}">
+{% endblock %}
+
+
+{% block title %}
+  {{ title }}
+{% endblock %}
+
+{% block content %}
+<div class="row g-5">
+  <div class="col-md-8">
+    <div class="my-3 p-3 bg-body rounded shadow-sm">
+    <article class="blog-post">
+      <h2 class="blog-post-title">{{ post.title }}</h2>
+      <p class="blog-post-meta">{{post.date|date:"d E Y в H:i"}}<a href="{%url 'profile_app:profile' post.author.id%}">{{ post.author }}</a></p>
+      <div id='text-post'>{{ post.text|safe }}</div>
+      <p>
+      </p>
+    </div>
+      {% if  post.author == user %}
+        <a class="btn btn-outline-primary" href="{%url 'edit_post' post.id %}">Обновление статьи</a>
+        <a class="btn btn-outline-danger" href="{%url 'delete_post' post.id %}">Удалить статью</a>
+      {% endif %}
+  <div class="my-3 p-3 bg-body rounded shadow-sm">
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="btn-group l">
+      {% for i in  post.vote.all%}
+        <button  id='lk' data-id="{{ post.id }}" data-type="article" data-action="like" title="Нравится">
+          {%if user in i.like.all%}<i id='l' style="color: #0d6efd;" class="bi bi-hand-thumbs-up-fill">{%else%}<i id='l' style="color: black;" class="bi bi-hand-thumbs-up">{%endif%}<span data-count="like">{{i.like.count}}</span></i>
+        </button>
+         <button id='lk'  data-id="{{ post.id }}" data-type="article" data-action="dislike" title="Не нравится">
+          {%if user in i.dis_like.all%}<i id='d' style="color: #0d6efd;" class="bi bi-hand-thumbs-down-fill">{%else%}<i id='d' style="color: black;" class="bi bi-hand-thumbs-down">{%endif%}<span data-count="dislike">{{i.dis_like.count}}</span></i>
+         </button>
+         <button id='lk'  data-id="{{ post.id }}" data-type="article" data-action="bookmark" title="Избранное">
+          {%if user in post.bookmark_user_list%}<i id='b' style="color:  #0d6efd;"  class="bi bi-star-fill">{%else%}<i id='lk' style="color: rgb(8, 0, 0);" class="bi bi-star">{%endif%}<span data-count="bookmark">{{post.get_bookmark_count}}</span></i>
+         </button>
+      {%endfor%}
+  </div>
+      <small class="text-muted">Просмотры: {{post.views}}</small>
+  </div>
+  </div>
+    <div class="my-3 p-3 bg-body rounded shadow-sm">
+      <h6 class="border-bottom pb-2 mb-0">Комментарии: ({{post.comment.all.count}})</h6>
+      <p></p>
+    <div class='comment_list allcomments'>
+    {% for comment in post.comment.all|slice:"0:3"%}
+      {% if forloop.last%}
+      <div class='row md-2 last-comment comment' data-commentid='{{ comment.id }}' object_id='{{comment.object_id}}'>
+      {%else%}
+      <div class='row md-2 comment'>
+      {%endif%}    
+        <div class="col-md-1 mx-auto"><img src="{{ comment.author.profile.img.url }}"class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="50" height="50"></div>
+        <div class="col-md-11 mx-auto text-comment" style="white-space: normal;">
+            <p><strong><a href="{% url 'profile_app:profile' comment.author.id %}">{{ comment.author }}</a></strong> | <small>опубликовано:{{ comment.created_at|date:"Y-m-d H:i" }}</small>
+              {% if user == comment.author %}
+              <a class='editdelete' id='{{comment.id}}' data-action="delete_comment" >Удалить</a>
+              {%endif%}
+            </p>
+            <div id="text-comment" text-id='{{comment.id}}'>{{ comment.text|safe }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% if post.comment.all.count >= 3 %}
+  <div class="col text-center"> 
+    <button  data-action="load_more_comments" class="btn btn-outline-primary load-more" style="width: 100%;">Еще комментарии</button>
+  </div>
+  <br>
+  {%endif%}
+    {% if not user.is_authenticated %}
+    </div>
+    <div class="card-body">
+      Только авторизованные пользователи могут публиковать комментарии.<br>Пожалуйста, <a href="">авторизуйтесь</a> или <a href="">зарегистрируйтесь</a>
+    </div>
+  {%else%}
+    <div>
+      {% csrf_token %}
+      {{ form }} 
+      {{form.media}}
+    </div>
+    <br>
+    <div class="col text-center"> 
+      <button data-action="create_comment" class="btn btn-outline-primary" style="width: 100%;">Отправить</button>
+    </div>
+  {%endif%}
+  </div>
+  </div>
+
+ {% endblock %}
+
+
+ {% block js %}
+  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+  <script>
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+  const csrftoken = getCookie('csrftoken');
+    function like()
+    {
+        var like = $(this);
+        var pk = like.data('id');
+        var dislike = like.next();
+     
+        $.ajax({
+            url : "{%url 'like_post' post.pk %}",
+            type : 'POST',
+            data : { 'obj' : pk,
+            'csrfmiddlewaretoken': csrftoken,
+           },
+     
+            success : function (json) {
+                like.find("[data-count='like']").text(json.like_count);
+                if(like.find('[id="l"]').attr('class')==='bi bi-hand-thumbs-up'){
+                  console.log(1)
+                  like.find('[id="l"]').attr('class', 'bi bi-hand-thumbs-up-fill');
+                  like.find('[id="l"]').attr('style', 'color: #0d6efd;');
+                }else{
+                  console.log(2)
+                  like.find('[id="l"]').attr('class', 'bi bi-hand-thumbs-up');
+                  like.find('[id="l"]').attr('style', 'color: black');
+                }
+                
+                dislike.find("[data-count='dislike']").text(json.dislike_count);
+                dislike.find('[id="d"]').attr('class', 'bi bi-hand-thumbs-down');
+                dislike.find('[id="d"]').attr('style', 'color: black');
+            }
+        });
+     
+        return false;
+    }
+     
+    function dislike()
+    {
+        var dislike = $(this);
+        var pk = dislike.data('id');
+        var like = dislike.prev();
+     
+        $.ajax({
+            url : '{%url "dislike_post" post.pk %}',
+            type : 'POST',
+            data : { 'obj' : pk,
+            'csrfmiddlewaretoken': csrftoken,
+           },
+     
+            success : function (json) {
+                dislike.find("[data-count='dislike']").text(json.dislike_count);
+                if(dislike.find('[id="d"]').attr('class')==='bi bi-hand-thumbs-down'){
+                  console.log(3)
+                  dislike.find('[id="d"]').attr('class', 'bi bi-hand-thumbs-down-fill')
+                  dislike.find('[id="d"]').attr('style', '#0d6efd;');
+                }else{
+                  console.log(4)
+                  dislike.find('[id="d"]').attr('class', 'bi bi-hand-thumbs-down');
+                  dislike.find('[id="d"]').attr('style', 'color: black');
+                }
+                like.find("[data-count='like']").text(json.like_count);
+                like.find('[id="l"]').attr('class', 'bi bi-hand-thumbs-up');
+                like.find('[id="l"]').attr('style', 'color: black');
+            }
+        });
+     
+        return false;
+    }
+    function to_bookmarks()
+    {
+        var current = $(this);
+        var pk = current.data('id');
+        var action = current.data('action');
+     
+        $.ajax({
+            url : "{% url 'post_bookmarks' post.pk%}",
+            type : 'POST',
+            data : { 'obj' : pk,
+            'csrfmiddlewaretoken': csrftoken },
+     
+            success : function (json) {
+                current.find("[data-count='" + action + "']").text(json.count);
+                if(current.find('[id="b"]').attr('class')==='bi bi-star'){
+                  current.find('[id="b"]').attr('class', 'bi bi-star-fill')
+                  current.find('[id="b"]').attr('style', '#0d6efd;');
+                }else{
+                  current.find('[id="b"]').attr('class', 'bi bi-star');
+                  current.find('[id="b"]').attr('style', 'color: black');
+                }
+             
+            }
+        });
+     
+        return false;
+    }
+    function create_comment()
+    {
+      for (var instance in CKEDITOR.instances)
+            CKEDITOR.instances[instance].updateElement();
+      var current = $(this);
+      var pk = current.data('id');
+      var text = CKEDITOR.instances[instance].getData();
+
+      $.ajax({
+        url: "{% url 'app_ct:comment-create' content_type="post" object_id=post.id %}",
+        type : 'POST',
+        data : { 'obj' : pk,
+        'text': text,
+        'csrfmiddlewaretoken': csrftoken },
+        success : function (json){
+          $('.comment_list').prepend(
+           "<div class='row md-2'> \n" +
+            '<div class="col-md-1 mx-auto"><img src="{{ user.profile.img.url }}"class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="50" height="50"></div> \n'+
+            '<div class="col-md-11 mx-auto text-comment" style="white-space: normal;">\n'+
+              '<p><strong><a href="{% url "profile_app:profile" user.id %}">{{ user }}</a></strong> | <small>опубликовано:'+ json.created_at  +'</small>'+
+              '<a class="editdelete" onclick="delete_comment()" id='+ json.id +' data-action="delete_comment"> Удалить </a>'+
+                '</p>\n'+
+              '<div id="text-comment">' +json.text+'</div>\n'+
+            '</div>\n'+
+            '</div>'
+          ), CKEDITOR.instances[instance].setData('');
+        }
+        });
+      return false;
+    }
+    function load_more_comment()
+    {
+      let lastCommentId = $('.last-comment').attr('data-commentid');
+      let object_id = $('.last-comment').attr('object_id');
+      $('.comment').removeClass('last-comment');
+      let data = {
+        lastCommentId:lastCommentId,
+        object_id:object_id
+      }
+      $.ajax({
+        method: 'GET',
+        dataType: 'json',
+        data: data,
+        url: '{% url "app_ct:load_more_comments"%}',
+        success: function(data){
+          let result = data['data']
+          if(!result){
+            $('.load-more').css('display', 'none')
+          }else{
+            $.each(result, function(key, obj){
+              if(obj['author']==='{{user}}'){
+                if(obj['last_comments']){
+                $('.allcomments').append(
+                  "<div class='row md-2 last-comment comment' data-commentid='"+ obj['id'] +"' object_id='"+ obj['object_id']+"'>" +
+                    '<div class="col-md-1 mx-auto"><img src="'+ obj['img'] +'"class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="50" height="50"></div>' +
+                    '<div class="col-md-11 mx-auto text-comment" style="white-space: normal;">' +
+                      '<p><strong><a href="http://127.0.0.1:8000/profile/'+obj['author_id']+'/">'+ obj['author'] +'</a></strong>| <small>опубликовано:'+ obj['created_at']+'</small>' +
+                      '<a class="editdelete" onclick="delete_comment()" id='+ obj['id'] +' data-action="delete_comment""> Удалить </a>'+
+                      '</p>\n'+
+                      '<div id="text-comment">'+ obj['text'] +'</div>' +
+                      '</div>' +
+                    '</div>'
+                )
+              }else{
+                $('.allcomments').append(
+                  "<div class='row md-2 comment' data-commentid='"+ obj['id'] +"object_id='"+ obj['object_id']+"'>" +
+                    '<div class="col-md-1 mx-auto"><img src="'+ obj['img'] +'"class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="50" height="50"></div>' +
+                    '<div class="col-md-11 mx-auto text-comment" style="white-space: normal;">' +
+                      '<p><strong><a href="http://127.0.0.1:8000/profile/'+obj['author_id']+'/">'+ obj['author'] +'</a></strong> | <small>опубликовано:'+ obj['created_at']+'</small>' +
+                      '<a class="editdelete" onclick="delete_comment()" id='+ obj['id'] +' data-action="delete_comment"> Удалить </a>'+
+                      '</p>\n'+
+                      '<div id="text-comment">'+ obj['text'] +'</div>' +
+                      '</div>' +
+                    '</div>'
+                )
+              }
+              }else{
+                if(obj['last_comments']){
+                $('.allcomments').append(
+                  "<div class='row md-2 last-comment comment' data-commentid='"+ obj['id'] +"' object_id='"+ obj['object_id']+"'>" +
+                    '<div class="col-md-1 mx-auto"><img src="'+ obj['img'] +'"class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="50" height="50"></div>' +
+                    '<div class="col-md-11 mx-auto text-comment" style="white-space: normal;">' +
+                      '<p><strong><a href="http://127.0.0.1:8000/profile/'+obj['author_id']+'/">'+ obj['author'] +'</a></strong> | <small>опубликовано:'+ obj['created_at']+'</small></p>' +
+                      '<div id="text-comment">'+ obj['text'] +'</div>' +
+                      '</div>' +
+                    '</div>'
+                )
+              }else{
+                $('.allcomments').append(
+                  "<div class='row md-2 comment' data-commentid='"+ obj['id'] +"object_id='"+ obj['object_id']+"'>" +
+                    '<div class="col-md-1 mx-auto"><img src="'+ obj['img'] +'"class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="50" height="50"></div>' +
+                    '<div class="col-md-11 mx-auto text-comment" style="white-space: normal;">' +
+                      '<p><strong><a href="http://127.0.0.1:8000/profile/'+obj['author_id']+'/">'+ obj['author'] +'</a></strong> | <small>опубликовано:'+ obj['created_at']+'</small></p>' +
+                      '<div id="text-comment">'+ obj['text'] +'</div>' +
+                      '</div>' +
+                    '</div>'
+                )
+              }
+            } 
+            })
+          }
+        }
+      })
+      return false;
+    }
+    
+    function delete_comment() {
+      let comment_id = Number(event.target.id);
+      let user =  '{{user}}';
+      console.log((comment_id))
+      let data = {
+        comment_id:comment_id,
+        user: user
+      };
+      $.ajax({
+        method:'GET',
+        dataType: 'json',
+        data: data,
+        url: '{%url "app_ct:delete_comment"%}',
+        success: function (data) {
+          console.log($(['[text-id="'+comment_id+'"]']))
+          $('[text-id="'+comment_id+'"]').text(data['data'])
+        }
+      })
+    }
+    $(function() {
+        $('[data-action="bookmark"]').click(to_bookmarks);
+        $('[data-action="like"]').click(like) ;
+        $('[data-action="dislike"]').click(dislike);
+        $('[data-action="create_comment"]').click(create_comment);
+        $('[data-action="load_more_comments"]').click(load_more_comment);
+        $('[data-action="delete_comment"]').click(delete_comment);
+    });</script>
+ {% endblock js %}

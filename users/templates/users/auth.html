@@ -1,0 +1,30 @@
+{% extends 'blog/base.html' %}
+{% load trans from i18n %}
+{% block title %}
+Страница авторизации
+{% endblock %}
+
+{% block content %}
+{% load crispy_forms_tags %}
+{% if not user.is_authenticated %}
+  <div class="my-3 p-3 bg-body rounded shadow-sm" style="width: 20%; margin:0 auto;">
+    <h4>Авторизация</h4>
+  <form  method="post">
+    {% csrf_token %}
+    <div>{{form.username|as_crispy_field}}</div>
+    <br>
+    <div>{{form.password|as_crispy_field}}</div>
+    <br>
+    <button type="submit" class="btn btn-outline-primary" style="width: 100%;">Войти</button>
+  </form>
+  <hr>
+  <div style="text-align: center;"> 
+    <a href="/login/vk-oauth2"><img src="/static/users/lvk.png" class="avatar-3" data-toggle="tooltip" title="{% trans 'Login via VKontakte' %}" style="width: 30px;height: 30px;"></a>
+    <a href="{% url 'social:begin' 'google-oauth2' %}"><img src="/static/users/google-1.jpg" class="avatar-3" data-toggle="tooltip" title="{% trans 'Login via Google+' %}" style="width: 30px;height: 30px;"></a>
+    <a href="{% url 'social:begin' 'github' %}"><img src="/static/users/Github.png" class="avatar-3" data-toggle="tooltip"  style="width: 30px;height: 30px;"></a>
+  </div>
+  </div>
+{% else %}
+  <h3 class="mb-5">Вы уже авторизированы</h3>
+{% endif %}
+{% endblock %}

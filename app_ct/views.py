@@ -1,5 +1,6 @@
 from datetime import timedelta
 import json
+from unicodedata import name
 from django.shortcuts import render, get_object_or_404
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
@@ -10,8 +11,9 @@ from django.urls import reverse_lazy
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView
 from blog.models import Post
+from django.contrib.auth.models import User
 
-from .models import Comment
+from .models import  Comment
 from .forms import CommentForm
 
 
@@ -78,3 +80,5 @@ class DynamicCommentsLoad(View):
             data.append(obj)
         data[-1]['last_comments'] = True
         return JsonResponse({'data': data})
+
+

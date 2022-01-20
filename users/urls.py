@@ -36,7 +36,8 @@ urlpatterns = [
     path('profile/edit_profile/', views.edit_profile, name='update_profile'),
     path('password-change/', PasswordChangeView, name='password_change'),
     path('password-change/done/', PasswordChangeDoneView.as_view(template_name = 'users/password_change_done.html'), name='password_change_done'),
+    path('add_subscribe/<int:pk>/', views.SubscribeToUser.as_view(), name='add_subscribe')
 ]
-
+ 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

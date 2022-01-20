@@ -9,7 +9,7 @@ from django.db.models.signals import post_save
 from ckeditor.fields import RichTextField
 
 from users.models import Profile
-
+from app_ct.models import BookmarkBase
 
 
 class Topic(models.Model):
@@ -65,14 +65,7 @@ def create_like_objects(sender, instance, created, **kwargs):
     if created:
         LikeDislike.objects.create(content_object=instance)
 
-class BookmarkBase(models.Model):
-    class Meta:
-        abstract = True
- 
-    user = models.ForeignKey(User, verbose_name="Пользователь",on_delete=models.CASCADE)
- 
-    def __str__(self):
-        return self.user.username
+
 
 class BookmarkPost(BookmarkBase):
     class Meta:

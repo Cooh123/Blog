@@ -1,12 +1,13 @@
+import re
 from django.contrib.auth.views import LoginView
 from django.forms import fields
 from django.http.response import HttpResponseRedirect
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeleteView, UpdateView
 
-from users.models import Profile
+from users.models import Profile, BookmarkUser
 from . import forms
-from django.views import generic
+from django.views import generic, View
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect, render
@@ -45,4 +46,16 @@ def edit_profile(request):
                       'users/edit_profile.html',
                       {'user_form': user_form,
                        'profile_form': profile_form})
+
+
+class SubscribeToUser(View):
+    model = User
+    def get(self, request, pk):
+        obj = self.model.objects.get(pk=pk)
+        if list(BookmarkUser.objects.filter(user=request.user, who_added=obj)) == []:
+            BookmarkUser.objects.create(user=request.user, who_added=obj)
+        else:
+            BookmarkUser.objects.get(user=request.user, who_added=obj).delete()
+        return HttpResponseRedirect('/profile/%a'%pk)
+
 

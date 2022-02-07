@@ -4,6 +4,6 @@ pytz==2021.1
 sqlparse==0.4.1
 django-crispy-forms==1.11.2
 pillow
-channels-redis
 django-ckeditor
 social-auth-app-django
+channels-redis

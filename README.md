@@ -21,5 +21,5 @@ Python 3.8
 3. Аппгрейд pip - `python -m pip install --upgrade pip`(на всякий случай)
 4. Установить зависимости - `pip install -r requirements.txt`
 5. Запустить - `python manage.py migrate`
-6. Запустить -`python manage.py loaddata db.json --app=posts`(чтобы предзаполнить БД)
+6. Запустить -`python manage.py loaddata db.json`(чтобы предзаполнить БД)
 

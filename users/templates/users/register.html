@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-
+{% if not user.is_authenticated %}
 <div class="my-3 p-3 bg-body rounded shadow-sm" style="width: 50%; margin:0 auto;">
   <h4>Регистрация</h4>
   <form  method="post">
@@ -32,4 +32,9 @@
     </div>
   </form>
 </div>
+{%else%}
+<div class="card-body">
+  Вы уже авторизованны
+</div>
+{%endif%}
 {% endblock %}

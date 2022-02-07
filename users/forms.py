@@ -1,3 +1,5 @@
+from tkinter import Label
+from attr import field
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm, PasswordChangeForm
 from . import models
@@ -68,16 +70,21 @@ class EditPass(PasswordChangeForm):
         fields = ['old_password','new_password1','new_password2']
 
 class UpdateUserForm(forms.ModelForm):
+    
     class Meta:
-        username = forms.CharField(
-            label='хехе'
-        )
         model = User
         fields = ['username','first_name','last_name','email']
 
 
 class UpdateProfileForm(forms.ModelForm):
+    bio = forms.CharField(required=False, label='Биография')
+    mobile_number = forms.CharField(required=False, label='Мобильный номер')
     class Meta:
         model = models.Profile
         fields = ['mobile_number', 'bio', 'img']
+
+class CreateMessageForm(forms.ModelForm):
+    class Meta:
+        model = models.Message
+        fields = ['message']
 

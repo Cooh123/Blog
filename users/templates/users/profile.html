@@ -30,7 +30,7 @@
                         Подписаться
                         {%endif%}
                     </a>
-                    <button class="btn btn-outline-primary">Message</button>
+                    <a href='{% url "profile_app:dialogs_user" prfl.id%}' class="btn btn-outline-primary">Написать</a>
                     {%endif%}
                   </div>
                 </div>

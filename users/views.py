@@ -1,17 +1,20 @@
-import re
+from django import template
+from django.db.models import Count, Max
 from django.contrib.auth.views import LoginView
-from django.forms import fields
 from django.http.response import HttpResponseRedirect
+from django.http import  JsonResponse, HttpResponse
+from django.views.generic import ListView,TemplateView, CreateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import DeleteView, UpdateView
-
-from users.models import Profile, BookmarkUser
+from users.models import Chat, Message, BookmarkUser
+from users.templatetags.all_messages import all_messages
 from . import forms
 from django.views import generic, View
+from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
+import json
 
 
 class UserCreateView(generic.CreateView):
@@ -58,4 +61,67 @@ class SubscribeToUser(View):
             BookmarkUser.objects.get(user=request.user, who_added=obj).delete()
         return HttpResponseRedirect('/profile/%a'%pk)
 
+
+# class MessageUserView(DetailView):
+#     model = Chat
+#     context_object_name = 'chats'
+#     template_name = 'users/message.html'
+
+
+class DialogsView(View):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return render(request, 'users/login_error.html')
+        else:
+            all_messages = Chat.objects.filter(
+                members__in=[request.user]
+                ).annotate(
+                count=Count('message')
+                ).filter(
+                count__gt=0
+                ).annotate(
+                last_message_pub_date=Max('message__pub_date')
+                ).order_by('-last_message_pub_date')
+            return render(request, 'users/dialogs.html', {'all_messages': all_messages}) 
+class CreateMessageAjax(View):
+    @staticmethod
+    def post(request, *args, **kwargs):
+        id_chat = int(request.POST.get('id_chat'))
+        text = request.POST.get('text')
+        chat = Chat.objects.get(id=id_chat)
+        if text != '':
+            message = Message.objects.create(chat=chat, author=request.user, message=text)
+        return HttpResponse(
+            json.dumps({
+                "text": text,
+                'pub_date': 'только что' 
+            }),
+            content_type="application/json"
+            )
+
+class DialogsDetail(View):
+    def get(self, request, pk):
+        if not request.user.is_authenticated:
+            return render(request, 'users/login_error.html')
+        else:
+            user = User.objects.get(id=pk)
+            if len(request.user.chat_set.filter(members__in=[request.user]).filter(members__in=[user])) != 1:
+                chat = Chat.objects.create()
+                chat.members.add(request.user)
+                chat.members.add(user)
+            chat = request.user.chat_set.filter(members__in=[request.user]).filter(members__in=[user])
+            all_messages = Chat.objects.filter(
+                members__in=[request.user]
+                ).annotate(
+                count=Count('message')
+                ).filter(
+                count__gt=0
+                ).annotate(
+                last_message_pub_date=Max('message__pub_date')
+                ).order_by('-last_message_pub_date')
+            for message in chat[0].message_set.filter(is_readed=False).exclude(author=request.user):
+                message.is_readed = True
+                message.save()
+            
+            return render(request, 'users/detail_dialogs.html', {'chat': chat[0], 'all_massages': all_messages} ) 
 

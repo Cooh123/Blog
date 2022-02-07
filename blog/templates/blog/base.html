@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load all_messages %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -23,17 +23,17 @@
           <li><a href="http://127.0.0.1:8000/admin/login/?next=/admin/" class="nav-link px-2 link-dark">Admin</a></li>
         </ul>
 
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-          <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
-        </form>
         {% if user.is_authenticated %}
         <div class="dropdown text-end">
           <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
             <img src="{{user.profile.img.url}}" alt="mdo" width="32" height="32" class="rounded-circle">
           </a>
           <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1" title="">
-            <li><a class="dropdown-item" href="{% url 'create_post' %}">Создать новость</a></li>
+            <li><a class="dropdown-item" href="{% url 'create_post' %}">Создать пост</a></li>
             <li><a class="dropdown-item" href="{% url 'profile_app:profile' user.id%}">Мой профиль</a></li>
+            <li><a class="dropdown-item" href="{% url 'profile_app:dialogs'%}">Сообщения<span class="badge bg-danger rounded-pill float-end">
+              {{user|all_messages}}
+          </span></a></li>
             <li><a class="dropdown-item" href="{% url 'profile_app:exit' %}">Выход</a></li>
           </ul>
         </div>
